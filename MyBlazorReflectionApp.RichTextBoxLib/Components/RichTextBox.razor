@@ -19,6 +19,7 @@
 
 
 @code {
+    private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RichTextBox));
 
     public string TextContent { get; set; } = "Contenido inicial.";
     private IJSObjectReference ? _module;
@@ -91,26 +92,41 @@
     }
 
 
-    private async Task LoadCssForComponent(Type type)
-{
-    if (_cssLoaded)
-    {
-        Console.WriteLine("ℹ️ CSS ya cargado, se omite nueva carga.");
-        return;
+      private async Task LoadCssForComponent()
+      {
+        if (_cssLoaded)
+       {
+             log.Info("ℹ️ CSS ya cargado, se omite nueva carga.");
+            return;
+        }
+   
+         try
+        {
+            var cssFileName = typeof(RichTextBox).Name + ".css";
+            var cssPath = $"./_content/{typeof(RichTextBox).Assembly.GetName().Name}/css/{cssFileName}";
+
+            log.Info($"🔄 Importando CSS desde: {cssPath}");
+
+            cssContent = await File.ReadAllTextAsync(@"E:\Prueba Blazor Server\Blazor amb Reflection (control compilat)\Controls\RichTextBox\wwwroot\css\RichTextBox.css");
+    
+           // ✅ Loguea el contenido CSS de forma segura (resumen o completo según necesidad)
+        if (!string.IsNullOrWhiteSpace(cssContent))
+        {
+            log.Info($"✅ CSS Content cargado. Length: {cssContent.Length}");
+            // Si quieres ver el contenido completo (no recomendado en producción):
+            log.Debug($"Contenido CSS:\n{cssContent}");
+        }
+        else
+        {
+            log.Warn("⚠️ CSS Content está vacío.");
     }
 
-    var cssFileName = type.Name + ".css";
-    var cssPath = $"./_content/{type.Assembly.GetName().Name}/css/{cssFileName}";
-
-    {
-        Console.WriteLine($"🔄 Importando CSS desde: {cssPath}");
-
-        cssContent = await File.ReadAllTextAsync(@"E:\Prueba Blazor Server\Blazor amb Reflection (control compilat)\Controls\RichTextBox\wwwroot\css\RichTextBox.css");
-
         if (_module == null)
-         ar jsPath = $"./_content/{typeof(RichTextBox).Assembly.GetName().Name}/js/RichTextBoxInterop.js";
+        {
+            var jsPath = $"./_content/{typeof(RichTextBox).Assembly.GetName().Name}/js/RichTextBoxInterop.js";
             _module = await JS.InvokeAsync<IJSObjectReference>("import", jsPath);
         }
+
         if (_module != null)
         {
             await _module.InvokeVoidAsync("loadCssDynamically", cssContent);
@@ -119,8 +135,10 @@
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Failed to load CSS: {ex.Message}");
+        log.Error("❌ Failed to load CSS", ex);
     }
+}
+
 }
 
 

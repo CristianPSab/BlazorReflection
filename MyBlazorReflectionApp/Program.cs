@@ -1,6 +1,15 @@
 using MyBlazorReflectionApp.Components;
+using log4net.Config;
+using log4net;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
+if (entryAssembly != null)
+{
+    var logRepository = LogManager.GetRepository(entryAssembly);
+    XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+}
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
