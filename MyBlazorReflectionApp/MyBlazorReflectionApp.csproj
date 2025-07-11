@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+
+ <ItemGroup>
+  <None Include="..\MyBlazorReflectionApp.RichTextBoxLib\bin\Debug\net9.0\MyBlazorReflectionApp.RichTextBoxLib.dll">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
+
+
+	
+
+
+</Project>

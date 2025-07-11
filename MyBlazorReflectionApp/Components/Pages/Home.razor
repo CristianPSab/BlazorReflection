@@ -1,0 +1,59 @@
+﻿@page "/"
+@using System.Reflection
+@using Microsoft.AspNetCore.Components.Web
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject IJSRuntime JS
+
+
+
+<PageTitle>Home</PageTitle>
+
+<h1>¡Bienvenido a tu Blazor App!</h1>
+
+<p>Este es el RichTextBox de tu librería de componentes:</p>
+
+
+
+
+
+@if (componentType != null)
+{
+     <DynamicComponent Type="@componentType" Parameters="@parameters" />
+}
+else
+{
+    <p>Loading component...</p>
+}
+
+
+@code {
+    private Type? componentType;
+    private Dictionary<string, object>? parameters;
+    private string ?cssContent;
+    
+
+    protected override Task OnInitializedAsync()
+    {
+        var assemblyPath = Path.Combine(AppContext.BaseDirectory, "MyBlazorReflectionApp.RichTextBoxLib.dll");
+
+        if (File.Exists(assemblyPath))
+        {
+            Console.WriteLine("✅ DLL encontrada en " + assemblyPath);
+
+            var assembly = Assembly.LoadFrom(assemblyPath);
+            componentType = assembly.GetType("MyBlazorReflectionApp.RichTextBoxLib.Components.RichTextBox");
+
+             
+        }
+        else
+        {
+            Console.WriteLine("❌ DLL no encontrada en " + assemblyPath);
+        }
+
+        return Task.CompletedTask;
+
+    }
+    
+
+
+}

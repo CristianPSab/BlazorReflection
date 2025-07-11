@@ -1,0 +1,126 @@
+﻿@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JS
+
+@namespace MyBlazorReflectionApp.RichTextBoxLib.Components
+
+@if (!string.IsNullOrWhiteSpace(cssContent))
+{
+    <style>
+        @((MarkupString)cssContent)
+    </style>
+}
+
+<div class="area">
+    <p>Este es tu RichTextBox personalizado.</p>
+    <textarea id="richTextBoxId" @bind="TextContent"></textarea>
+</div>
+
+
+@code {
+
+    public string TextContent { get; set; } = "Contenido inicial.";
+    private IJSObjectReference ? _module;
+    private string ?cssContent;
+    private bool _jsdLoaded = false;
+    private bool _cssLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+     if (firstRender)
+        {
+            try
+            {
+                // ✅ Importa el módulo JS una sola vez
+                if (_module == null)
+                {
+                    var jsPath = $"./_content/{typeof(RichTextBox).Assembly.GetName().Name}/js/RichTextBoxInterop.js";
+                    _module = await JS.InvokeAsync<IJSObjectReference>("import", jsPath);
+                }
+
+
+              if (componentType != null)
+             {
+                parameters = new Dictionary<string, object>();
+
+                await LoadJsForComponent();
+                await LoadCssForComponent();
+                
+            }
+            else
+            {
+                Console.WriteLine("❌ Tipo de componente no encontrado en la DLL.");
+            }
+
+
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al cargar JS o CSS: {ex}");
+            }
+        }
+    }
+
+
+    private async Task LoadJsForComponent(Type type)
+    {
+         if (jsLoaded)
+        {
+            Console.WriteLine("ℹ️ JS ya cargado, se omite nueva importación.");
+            return;
+        }
+
+
+        try
+        {
+            Console.WriteLine($"🔄 Importando JS desde: {jsPath}");
+
+            if (_module != null)
+            {
+                await _module.InvokeVoidAsync("initializeRichTextBox", "richTextBoxId");
+                _jsLoaded = true;
+            }
+         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to load JS: {ex.Message}");
+        }
+    }
+
+
+    private async Task LoadCssForComponent(Type type)
+{
+    if (_cssLoaded)
+    {
+        Console.WriteLine("ℹ️ CSS ya cargado, se omite nueva carga.");
+        return;
+    }
+
+    var cssFileName = type.Name + ".css";
+    var cssPath = $"./_content/{type.Assembly.GetName().Name}/css/{cssFileName}";
+
+    {
+        Console.WriteLine($"🔄 Importando CSS desde: {cssPath}");
+
+        cssContent = await File.ReadAllTextAsync(@"E:\Prueba Blazor Server\Blazor amb Reflection (control compilat)\Controls\RichTextBox\wwwroot\css\RichTextBox.css");
+
+        if (_module == null)
+         ar jsPath = $"./_content/{typeof(RichTextBox).Assembly.GetName().Name}/js/RichTextBoxInterop.js";
+            _module = await JS.InvokeAsync<IJSObjectReference>("import", jsPath);
+        }
+        if (_module != null)
+        {
+            await _module.InvokeVoidAsync("loadCssDynamically", cssContent);
+            _cssLoaded = true;
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Failed to load CSS: {ex.Message}");
+    }
+}
+
+
